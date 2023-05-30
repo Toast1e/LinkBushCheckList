@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Link-Bush_Checklist</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #bfd2d1;
+    }
+    .container {
+      display: flex;
+      justify-content: space-between;
+    }
+    .items {
+      width: 45%;
+    }
+    .completed-items {
+      width: 45%;
+    }
+    ul {
+      list-style-type: none;
+      padding: 0;
+    }
+    li {
+      margin-bottom: 5px;
+    }
+    .add {
+        border-radius: 10px;
+    }
+    #todo-input {
+        border-radius: 10px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Link-Bush_Checklist</h1>
+  <div class="container">
+    <div class="items">
+      <h2>To-Do Items</h2>
+      <ul id="todo-items"></ul>
+      <form id="todo-form">
+        <input type="text" id="todo-input" placeholder="Add a new to-do item" />
+        <button class="add" type="submit">Add</button>
+      </form>
+    </div>
+    <div class="completed-items">
+      <h2>Completed Items</h2>
+      <ul id="completed-items"></ul>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      var todoItems = document.getElementById('todo-items');
+      var completedItems = document.getElementById('completed-items');
+      var todos = JSON.parse(localStorage.getItem('todos')) || [];
+      var completedTodos = JSON.parse(localStorage.getItem('completedTodos')) || [];
+
+      function renderTodoItems() {
+        todoItems.innerHTML = '';
+        todos.forEach(function(todo) {
+          var li = document.createElement('li');
+          var checkbox = document.createElement('input');
+          checkbox.type = 'checkbox';
+          checkbox.value = todo;
+          checkbox.addEventListener('change', function() {
+            moveItem(todo, todos, completedTodos);
+          });
+          li.appendChild(checkbox);
+          li.appendChild(document.createTextNode(todo));
+          todoItems.appendChild(li);
+        });
+      }
+
+      function renderCompletedItems() {
+        completedItems.innerHTML = '';
+        completedTodos.forEach(function(completedTodo) {
+          var li = document.createElement('li');
+          var checkbox = document.createElement('input');
+          checkbox.type = 'checkbox';
+          checkbox.checked = true;
+          checkbox.disabled = true;
+          li.appendChild(checkbox);
+          li.appendChild(document.createTextNode(completedTodo));
+          completedItems.appendChild(li);
+        });
+      }
+
+      function moveItem(item, fromArray, toArray) {
+        var index = fromArray.indexOf(item);
+        if (index !== -1) {
+          fromArray.splice(index, 1);
+          toArray.push(item);
+          saveItems();
+          renderTodoItems();
+          renderCompletedItems();
+        }
+      }
+
+      function saveItems() {
+        localStorage.setItem('todos', JSON.stringify(todos));
+        localStorage.setItem('completedTodos', JSON.stringify(completedTodos));
+      }
+
+      renderTodoItems();
+      renderCompletedItems();
+
+      document.getElementById('todo-form').addEventListener('submit', function(e) {
+        e.preventDefault();
+        var todoInput = document.getElementById('todo-input');
+        var newTodo = todoInput.value.trim();
+        if (newTodo !== '') {
+          todos.push(newTodo);
+          saveItems();
+          renderTodoItems();
+          todoInput.value = '';
+        }
+      });
+    });
+  </script>
+</body>
+</html>
